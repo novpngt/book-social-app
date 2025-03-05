@@ -11,7 +11,8 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 @Table
-@Data
+@Getter
+@Setter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor

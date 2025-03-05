@@ -22,19 +22,12 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Slf4j
 public class CustomJwtDecoder implements JwtDecoder {
-    @NonFinal
-    @Value("${jwt.signer-key}")
-    String SIGNER_KEY;
 
     AuthenticationService authenticationService;
-
-    @NonFinal
-    NimbusJwtDecoder nimbusJwtDecoder = null;
 
     @Override
     public Jwt decode(String token) throws JwtException {
         try {
-            // This line throws AppException
             return authenticationService.verifyToken(token, false);
         } catch (AppException e) {
             log.error(e.getMessage());
