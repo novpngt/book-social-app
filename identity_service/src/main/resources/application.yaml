@@ -1,7 +1,7 @@
 server:
   port: 8080
   servlet:
-    context-path: /identity/api/v1
+    context-path: /identity/
 
 spring:
   datasource:
@@ -21,4 +21,4 @@ jwt:
 
 app:
   services:
-    user-profile-client-url: http://localhost:8081/profile/api/v1
+    user-profile-client-url: http://localhost:8081/profile

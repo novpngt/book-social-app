@@ -1,7 +1,7 @@
 server:
   port: 8081
   servlet:
-    context-path: /profile/api/v1
+    context-path: /profile/
 
 spring:
   neo4j:
