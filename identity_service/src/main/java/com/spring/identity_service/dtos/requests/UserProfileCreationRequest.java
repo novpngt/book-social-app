@@ -1,5 +1,8 @@
-package com.spring.profile_service.dtos.requests;
+package com.spring.identity_service.dtos.requests;
 
+import com.spring.identity_service.validators.DOBConstraint;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Size;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -14,6 +17,6 @@ public class UserProfileCreationRequest {
     String userId;
     String firstName;
     String lastName;
-    String city;
     LocalDate birthDate;
+    String city;
 }

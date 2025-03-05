@@ -23,14 +23,5 @@ public class UserUpdateRequest {
     @Size(min = 6, max = 32, message = "INVALID_PASSWORD")
     String password;
 
-    @NotEmpty(message = "INVALID_FIRSTNAME")
-    String firstName;
-
-    @NotEmpty(message = "INVALID_LASTNAME")
-    String lastName;
-
-    @DOBConstraint(min = 18, message = "INVALID_AGE")
-    LocalDate birthDate;
-
     Set<String> roles;
 }

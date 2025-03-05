@@ -57,22 +57,17 @@ class UserServiceTest {
                 .lastName("userLN5")
                 .firstName("userFN5")
                 .birthDate(LocalDate.of(2000, 2, 2))
+                .city("HN")
                 .build();
 
         userResponse = UserResponse.builder()
                 .id("user-UUID-format")
                 .username("user05")
-                .lastName("userLN5")
-                .firstName("userFN5")
-                .birthDate(LocalDate.of(2000, 2, 2))
                 .build();
 
         user = User.builder()
                 .password("hashed-chain-password")
                 .username("user05")
-                .lastName("userLN5")
-                .firstName("userFN5")
-                .birthDate(LocalDate.of(2000, 2, 2))
                 .build();
 
         role = Role.builder().name("USER").description("USER ROLE").build();

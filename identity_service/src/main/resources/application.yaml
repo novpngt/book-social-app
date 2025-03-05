@@ -15,6 +15,10 @@ spring:
     show-sql: true
 
 jwt:
-  signer-key: ${SIGNER_KEY}
+  signer-key: ${SIGNER_KEY:SuVDj9mXZ9+l7NidbuzB2KZvlTD4XXp74Y87cXJTRpQLaP+a88iaYwPAhePY/24o}
   token-ttl: 3600
   token-grace-period: 7200
+
+app:
+  services:
+    user-profile-client-url: http://localhost:8081/profile/api/v1

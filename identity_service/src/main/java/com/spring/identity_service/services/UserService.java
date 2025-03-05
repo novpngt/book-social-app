@@ -4,6 +4,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.spring.identity_service.dtos.requests.UserProfileCreationRequest;
+import com.spring.identity_service.mappers.ProfileMapper;
+import com.spring.identity_service.repositories.httpclients.UserProfileClient;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -37,6 +40,8 @@ public class UserService {
     UserMapper userMapper;
     PasswordEncoder passwordEncoder;
     RoleRepository roleRepository;
+    UserProfileClient userProfileClient;
+    ProfileMapper profileMapper;
 
     public UserResponse createUser(UserCreateRequest request) {
         User user = userMapper.toUser(request);
@@ -46,6 +51,9 @@ public class UserService {
 
         try {
             user = userRepository.save(user);
+            UserProfileCreationRequest userProfileCreationRequest = profileMapper.toUserProfileCreationRequest(request);
+            userProfileCreationRequest.setUserId(user.getId());
+            userProfileClient.createUserProfile(userProfileCreationRequest);
         } catch (DataIntegrityViolationException e) {
             throw new AppException(ErrorCode.USER_ALREADY_EXISTS);
         }

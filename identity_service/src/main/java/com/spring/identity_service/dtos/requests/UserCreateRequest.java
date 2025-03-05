@@ -30,4 +30,6 @@ public class UserCreateRequest {
 
     @DOBConstraint(min = 18, message = "INVALID_AGE")
     LocalDate birthDate;
+
+    String city;
 }

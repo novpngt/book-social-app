@@ -1,4 +1,4 @@
-package com.spring.profile_service.dtos.requests;
+package com.spring.identity_service.dtos.responses;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -10,10 +10,11 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class UserProfileCreationRequest {
+public class UserProfileResponse {
+    String id;
     String userId;
     String firstName;
     String lastName;
-    String city;
     LocalDate birthDate;
+    String city;
 }

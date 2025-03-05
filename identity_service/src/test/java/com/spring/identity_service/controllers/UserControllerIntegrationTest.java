@@ -56,13 +56,11 @@ public class UserControllerIntegrationTest {
                 .lastName("userLN5")
                 .firstName("userFN5")
                 .birthDate(LocalDate.of(2000, 2, 2))
+                .city("HN")
                 .build();
 
         userResponse = UserResponse.builder()
                 .username("user05")
-                .lastName("userLN5")
-                .firstName("userFN5")
-                .birthDate(LocalDate.of(2000, 2, 2))
                 .build();
     }
 

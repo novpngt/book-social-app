@@ -27,11 +27,7 @@ public class User {
             nullable = false,
             columnDefinition = "VARCHAR(255) COLLATE utf8mb4_unicode_ci")
     String username;
-
     String password;
-    String firstName;
-    String lastName;
-    LocalDate birthDate;
 
     @ManyToMany
     Set<Role> roles;
