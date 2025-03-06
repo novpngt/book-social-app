@@ -79,7 +79,7 @@ public class AuthenticationService {
 
     public LogoutResponse logout(LogoutRequest request) throws JwtException {
         Jwt jwt = verifyToken(request.getToken(), true); // Trả về Jwt
-        String jit = jwt.getId(); // Lấy jti
+        String jit = jwt.getId(); // Lấy jwt id token
         Date expiryTime = Date.from(jwt.getExpiresAt()); // Chuyển Instant sang Date
         InvalidatedToken invalidatedToken =
                 InvalidatedToken.builder().id(jit).expiration(expiryTime).build();
@@ -126,6 +126,57 @@ public class AuthenticationService {
         }
 
         return jwt;
+    }
+
+    public IntrospectResponse introspect(IntrospectRequest request) {
+        var token = request.getToken();
+        try {
+            verifyToken(token, false);
+        } catch (Exception e) {
+            return IntrospectResponse.builder().valid(false).build();
+        }
+        return IntrospectResponse.builder().valid(true).build();
+    }
+
+    private String generateToken(User user) {
+        log.info("KEY: {}", SIGNER_KEY);
+        JWSHeader header = new JWSHeader(JWSAlgorithm.HS512);
+
+        JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
+                .subject(user.getUsername())
+                .issuer("identity-service.com")
+                .issueTime(new Date())
+                .expirationTime(new Date(
+                        Instant.now().plus(TOKEN_TTL, ChronoUnit.SECONDS).toEpochMilli()))
+                .claim("scope", buildScope(user))
+                .jwtID(UUID.randomUUID().toString())
+                .build();
+
+        Payload payload = new Payload(jwtClaimsSet.toJSONObject());
+
+        JWSObject jwsObject = new JWSObject(header, payload);
+
+        try {
+            jwsObject.sign(new MACSigner(SIGNER_KEY.getBytes()));
+            return jwsObject.serialize();
+        } catch (JOSEException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private String buildScope(User user) {
+        StringJoiner stringJoiner = new StringJoiner(" ");
+        if (!CollectionUtils.isEmpty(user.getRoles())) {
+            user.getRoles().forEach(role -> {
+                stringJoiner.add("ROLE_" + role.getName());
+                if (!CollectionUtils.isEmpty(role.getPermissions())) {
+                    role.getPermissions().forEach(permission -> {
+                        stringJoiner.add(permission.getName());
+                    });
+                }
+            });
+        }
+        return stringJoiner.toString();
     }
 
     /*
@@ -187,51 +238,4 @@ public class AuthenticationService {
     	return signedJWT;
     }
      */
-
-    public IntrospectResponse introspect(IntrospectRequest request) throws ParseException, JOSEException {
-        var token = request.getToken();
-        verifyToken(token, false);
-        return IntrospectResponse.builder().valid(true).build();
-    }
-
-    private String generateToken(User user) {
-        log.info("KEY: {}", SIGNER_KEY);
-        JWSHeader header = new JWSHeader(JWSAlgorithm.HS512);
-
-        JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
-                .subject(user.getUsername())
-                .issuer("identity-service.com")
-                .issueTime(new Date())
-                .expirationTime(new Date(
-                        Instant.now().plus(TOKEN_TTL, ChronoUnit.SECONDS).toEpochMilli()))
-                .claim("scope", buildScope(user))
-                .jwtID(UUID.randomUUID().toString())
-                .build();
-
-        Payload payload = new Payload(jwtClaimsSet.toJSONObject());
-
-        JWSObject jwsObject = new JWSObject(header, payload);
-
-        try {
-            jwsObject.sign(new MACSigner(SIGNER_KEY.getBytes()));
-            return jwsObject.serialize();
-        } catch (JOSEException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private String buildScope(User user) {
-        StringJoiner stringJoiner = new StringJoiner(" ");
-        if (!CollectionUtils.isEmpty(user.getRoles())) {
-            user.getRoles().forEach(role -> {
-                stringJoiner.add("ROLE_" + role.getName());
-                if (!CollectionUtils.isEmpty(role.getPermissions())) {
-                    role.getPermissions().forEach(permission -> {
-                        stringJoiner.add(permission.getName());
-                    });
-                }
-            });
-        }
-        return stringJoiner.toString();
-    }
 }

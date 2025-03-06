@@ -17,7 +17,7 @@ public enum ErrorCode {
     USER_VALIDATION_ERROR(1003, "User validation error", HttpStatus.BAD_REQUEST),
     USER_NOT_FOUND(1004, "User not found", HttpStatus.NOT_FOUND),
     USER_NOT_EXISTS(1005, "User not exists", HttpStatus.BAD_REQUEST),
-    UNAUTHENTICATED_ERROR(1006, "Unauthenticated error", HttpStatus.UNAUTHORIZED),
+    UNAUTHENTICATED_ERROR(1006, "Unauthenticated", HttpStatus.UNAUTHORIZED),
     INVALID_JWT_TOKEN(1007, "Invalid JWT token", HttpStatus.UNAUTHORIZED),
     JWT_VERIFICATION_FAILED(1008, "JWT verification failed", HttpStatus.UNAUTHORIZED),
     UNREADABLE_MESSAGE(1009, "Http message is not readable", HttpStatus.BAD_REQUEST),
