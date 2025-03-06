@@ -28,7 +28,7 @@ public class CustomJwtDecoder implements JwtDecoder {
     @Override
     public Jwt decode(String token) throws JwtException {
         try {
-            return authenticationService.verifyToken(token, false);
+            return authenticationService.verifyToken(token);
         } catch (AppException e) {
             log.error(e.getMessage());
             throw new BadCredentialsException("Invalid token", e);

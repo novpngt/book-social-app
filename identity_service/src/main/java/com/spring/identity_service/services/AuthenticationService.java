@@ -1,6 +1,5 @@
 package com.spring.identity_service.services;
 
-import java.text.ParseException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
@@ -56,11 +55,11 @@ public class AuthenticationService {
 
     @NonFinal
     @Value("${jwt.token-ttl}")
-    protected int TOKEN_TTL;
+    protected int ACCESS_TOKEN_TTL;
 
     @NonFinal
     @Value("${jwt.token-grace-period}")
-    protected int TOKEN_GRACE_PERIOD;
+    protected int REFRESH_TOKEN_TTL;
 
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
         var user = userRepository
@@ -72,13 +71,14 @@ public class AuthenticationService {
             throw new AppException(ErrorCode.UNAUTHENTICATED_ERROR);
         }
 
-        var token = generateToken(user);
+        var token = generateToken(user, ACCESS_TOKEN_TTL);
+        var refreshToken = generateRefreshToken(user, REFRESH_TOKEN_TTL);
 
-        return AuthenticationResponse.builder().token(token).authenticated(true).build();
+        return AuthenticationResponse.builder().token(token).refreshToken(refreshToken).authenticated(true).build();
     }
 
     public LogoutResponse logout(LogoutRequest request) throws JwtException {
-        Jwt jwt = verifyToken(request.getToken(), true); // Trả về Jwt
+        Jwt jwt = verifyToken(request.getToken()); // Trả về Jwt
         String jit = jwt.getId(); // Lấy jwt id token
         Date expiryTime = Date.from(jwt.getExpiresAt()); // Chuyển Instant sang Date
         InvalidatedToken invalidatedToken =
@@ -88,20 +88,22 @@ public class AuthenticationService {
     }
 
     public AuthenticationResponse refreshToken(RefreshTokenRequest request) throws JwtException {
-        Jwt jwt = verifyToken(request.getToken(), true); // Trả về Jwt
+        Jwt jwt = verifyToken(request.getToken()); // Trả về Jwt
         String jit = jwt.getId(); // Lấy jti
         Date expiryTime = Date.from(jwt.getExpiresAt()); // Chuyển Instant sang Date
         User user = userRepository
                 .findByUsername(jwt.getSubject()) // Lấy sub
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
-        String token = generateToken(user);
+        String token = generateToken(user, ACCESS_TOKEN_TTL);
+        String refreshToken = generateRefreshToken(user, REFRESH_TOKEN_TTL);
+
         InvalidatedToken invalidatedToken =
                 InvalidatedToken.builder().id(jit).expiration(expiryTime).build();
         invalidatedTokenRepository.save(invalidatedToken);
-        return AuthenticationResponse.builder().token(token).authenticated(true).build();
+        return AuthenticationResponse.builder().token(token).refreshToken(refreshToken).authenticated(true).build();
     }
 
-    public Jwt verifyToken(String token, boolean isRefresh) throws JwtException {
+    public Jwt verifyToken(String token) throws JwtException {
         SecretKeySpec secretKeySpec = new SecretKeySpec(SIGNER_KEY.getBytes(), "HS512");
         NimbusJwtDecoder decoder = NimbusJwtDecoder.withSecretKey(secretKeySpec)
                 .macAlgorithm(MacAlgorithm.HS512)
@@ -114,8 +116,7 @@ public class AuthenticationService {
             throw new AppException(ErrorCode.UNAUTHENTICATED_ERROR);
         }
 
-        Instant expiration =
-                isRefresh ? jwt.getIssuedAt().plus(TOKEN_GRACE_PERIOD, ChronoUnit.SECONDS) : jwt.getExpiresAt();
+        Instant expiration = jwt.getExpiresAt();
         if (expiration.isBefore(Instant.now())) {
             throw new AppException(ErrorCode.UNAUTHENTICATED_ERROR);
         }
@@ -131,15 +132,15 @@ public class AuthenticationService {
     public IntrospectResponse introspect(IntrospectRequest request) {
         var token = request.getToken();
         try {
-            verifyToken(token, false);
+            verifyToken(token);
         } catch (Exception e) {
             return IntrospectResponse.builder().valid(false).build();
         }
         return IntrospectResponse.builder().valid(true).build();
     }
 
-    private String generateToken(User user) {
-        log.info("KEY: {}", SIGNER_KEY);
+    private String generateRefreshToken(User user, int tokenTimeToLive) {
+        log.info("generating refresh token");
         JWSHeader header = new JWSHeader(JWSAlgorithm.HS512);
 
         JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
@@ -147,7 +148,32 @@ public class AuthenticationService {
                 .issuer("identity-service.com")
                 .issueTime(new Date())
                 .expirationTime(new Date(
-                        Instant.now().plus(TOKEN_TTL, ChronoUnit.SECONDS).toEpochMilli()))
+                        Instant.now().plus(tokenTimeToLive, ChronoUnit.SECONDS).toEpochMilli()))
+                .jwtID(UUID.randomUUID().toString())
+                .build();
+
+        Payload payload = new Payload(jwtClaimsSet.toJSONObject());
+
+        JWSObject jwsObject = new JWSObject(header, payload);
+
+        try {
+            jwsObject.sign(new MACSigner(SIGNER_KEY.getBytes()));
+            return jwsObject.serialize();
+        } catch (JOSEException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private String generateToken(User user, int tokenTimeToLive) {
+        log.info("generating token");
+        JWSHeader header = new JWSHeader(JWSAlgorithm.HS512);
+
+        JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
+                .subject(user.getUsername())
+                .issuer("identity-service.com")
+                .issueTime(new Date())
+                .expirationTime(new Date(
+                        Instant.now().plus(tokenTimeToLive, ChronoUnit.SECONDS).toEpochMilli()))
                 .claim("scope", buildScope(user))
                 .jwtID(UUID.randomUUID().toString())
                 .build();
