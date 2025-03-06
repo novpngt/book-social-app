@@ -11,6 +11,8 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Service
@@ -28,5 +30,12 @@ public class UserProfileService {
     public UserProfileResponse getUserProfileById(String id){
         UserProfile userProfile = userProfileRepository.findById(id).orElseThrow(()->new RuntimeException("User profile not found"));
         return userProfileMapper.toUserProfileResponse(userProfile);
+    }
+
+    public List<UserProfileResponse> getAllUserProfiles(){
+        List<UserProfile> userProfiles = userProfileRepository.findAll();
+        List<UserProfileResponse> userProfileResponses = userProfiles.stream()
+                .map(userProfile -> userProfileMapper.toUserProfileResponse(userProfile)).toList();
+        return userProfileResponses;
     }
 }
