@@ -36,7 +36,7 @@ public class SecurityConfig {
 
     @NonFinal
     static final String[] POST_PUBLIC_ENDPOINTS = {
-
+            "/internal/users/registration"
     };
 
     CustomJwtDecoder customJwtDecoder;
