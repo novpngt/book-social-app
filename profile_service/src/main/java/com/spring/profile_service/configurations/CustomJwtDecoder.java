@@ -1,13 +1,10 @@
-package com.spring.identity_service.configurations;
+package com.spring.profile_service.configurations;
 
 import com.nimbusds.jwt.SignedJWT;
-import com.spring.identity_service.exceptions.AppException;
-import com.spring.identity_service.services.AuthenticationService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtException;
@@ -21,8 +18,6 @@ import java.text.ParseException;
 @Slf4j
 public class CustomJwtDecoder implements JwtDecoder {
 
-    AuthenticationService authenticationService;
-
     @Override
     public Jwt decode(String token) throws JwtException {
         try {
@@ -35,10 +30,6 @@ public class CustomJwtDecoder implements JwtDecoder {
                     signedJWT.getHeader().toJSONObject(),
                     signedJWT.getJWTClaimsSet().getClaims()
             );
-
-        } catch (AppException e) {
-            log.error(e.getMessage());
-            throw new BadCredentialsException("Invalid token", e);
         } catch (ParseException e) {
             throw new RuntimeException(e);
         }

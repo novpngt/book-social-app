@@ -1,6 +1,5 @@
 package com.spring.identity_service.services;
 
-import java.text.ParseException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
@@ -133,9 +132,9 @@ public class AuthenticationService {
         try {
             verifyToken(token, false);
         } catch (Exception e) {
-            return IntrospectResponse.builder().valid(false).build();
+            return IntrospectResponse.builder().isTokenValid(false).build();
         }
-        return IntrospectResponse.builder().valid(true).build();
+        return IntrospectResponse.builder().isTokenValid(true).build();
     }
 
     private String generateToken(User user) {

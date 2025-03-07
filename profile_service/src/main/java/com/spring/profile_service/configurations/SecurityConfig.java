@@ -1,7 +1,9 @@
-package com.spring.identity_service.configurations;
+package com.spring.profile_service.configurations;
 
-import java.util.List;
-
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
+import lombok.experimental.NonFinal;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -18,10 +20,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import lombok.AccessLevel;
-import lombok.RequiredArgsConstructor;
-import lombok.experimental.FieldDefaults;
-import lombok.experimental.NonFinal;
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -37,11 +36,7 @@ public class SecurityConfig {
 
     @NonFinal
     static final String[] POST_PUBLIC_ENDPOINTS = {
-            "/users/registration",
-            "/auth/token",
-            "/auth/introspect",
-            "/auth/logout",
-            "/auth/refresh",
+
     };
 
     CustomJwtDecoder customJwtDecoder;
@@ -61,26 +56,9 @@ public class SecurityConfig {
                         .jwtAuthenticationConverter(customPrefixJwtAuthenticationConverter()))
                 .authenticationEntryPoint(new JwtAuthenticationEntryPoint()));
 
-        httpSecurity.cors(cors -> cors.configurationSource(apiConfigurationSource()));
-
         httpSecurity.csrf(AbstractHttpConfigurer::disable);
 
         return httpSecurity.build();
-    }
-
-    @Bean
-    CorsConfigurationSource apiConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(
-                List.of("http://localhost:3000")); // Still restricting origins to localhost:3000
-        configuration.setAllowedMethods(List.of("*")); // Allows all HTTP methods
-        configuration.setAllowedHeaders(List.of("*")); // Allows all headers
-        configuration.setAllowCredentials(
-                true); // Optional: if you need to support credentials (e.g., cookies, auth headers)
-
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration); // Apply to all paths
-        return source;
     }
 
     @Bean
@@ -92,10 +70,5 @@ public class SecurityConfig {
         jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(jwtGrantedAuthoritiesConverter);
 
         return jwtAuthenticationConverter;
-    }
-
-    @Bean
-    PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder(10);
     }
 }

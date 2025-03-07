@@ -1,4 +1,4 @@
-package com.spring.identity_service.dtos.responses;
+package com.spring.profile_service.exceptions;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -8,6 +8,7 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class IntrospectResponse {
-    boolean isTokenValid;
+public class ValidationError {
+    String field;
+    String message;
 }

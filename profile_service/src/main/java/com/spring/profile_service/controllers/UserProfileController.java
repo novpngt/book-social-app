@@ -1,6 +1,7 @@
 package com.spring.profile_service.controllers;
 
 import com.spring.profile_service.dtos.requests.UserProfileCreationRequest;
+import com.spring.profile_service.dtos.responses.ApiResponse;
 import com.spring.profile_service.dtos.responses.UserProfileResponse;
 import com.spring.profile_service.services.UserProfileService;
 import lombok.AccessLevel;
@@ -25,7 +26,9 @@ public class UserProfileController {
     }
 
     @GetMapping("")
-    public List<UserProfileResponse> getUserProfiles(){
-        return userProfileService.getAllUserProfiles();
+    public ApiResponse<List<UserProfileResponse>,Void> getUserProfiles(){
+        return ApiResponse.<List<UserProfileResponse>,Void> builder()
+                .data(userProfileService.getAllUserProfiles())
+                .build();
     }
 }
