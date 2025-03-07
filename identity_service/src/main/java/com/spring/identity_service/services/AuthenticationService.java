@@ -59,7 +59,7 @@ public class AuthenticationService {
 
     @NonFinal
     @Value("${jwt.token-grace-period}")
-    protected int TOKEN_GRACE_PERIOD;
+    protected int REFRESH_TOKEN_TTL;
 
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
         var user = userRepository
@@ -114,7 +114,7 @@ public class AuthenticationService {
         }
 
         Instant expiration =
-                isRefresh ? jwt.getIssuedAt().plus(TOKEN_GRACE_PERIOD, ChronoUnit.SECONDS) : jwt.getExpiresAt();
+                isRefresh ? jwt.getIssuedAt().plus(REFRESH_TOKEN_TTL, ChronoUnit.SECONDS) : jwt.getExpiresAt();
         if (expiration.isBefore(Instant.now())) {
             throw new AppException(ErrorCode.UNAUTHENTICATED_ERROR);
         }
