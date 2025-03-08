@@ -16,7 +16,7 @@ export default function Home() {
 
       console.log(data);
 
-      setUserDetails(data.data);
+      setUserDetails(data.result);
     } catch (error) {}
   };
 
