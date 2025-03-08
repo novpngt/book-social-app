@@ -25,21 +25,21 @@ public class RoleController {
     @PostMapping()
     ApiResponse<RoleResponse, Void> create(@RequestBody RoleRequest request) {
         return ApiResponse.<RoleResponse, Void>builder()
-                .data(roleService.create(request))
+                .result(roleService.create(request))
                 .build();
     }
 
     @GetMapping
     ApiResponse<List<RoleResponse>, Void> getRoles() {
         return ApiResponse.<List<RoleResponse>, Void>builder()
-                .data(roleService.getRoles())
+                .result(roleService.getRoles())
                 .build();
     }
 
     @DeleteMapping("/{roleId}")
     ApiResponse<String, Void> delete(@PathVariable String roleId) {
         return ApiResponse.<String, Void>builder()
-                .data(roleService.delete(roleId))
+                .result(roleService.delete(roleId))
                 .build();
     }
 }

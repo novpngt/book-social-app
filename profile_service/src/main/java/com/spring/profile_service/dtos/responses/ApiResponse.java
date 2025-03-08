@@ -16,6 +16,6 @@ public class ApiResponse<T, E> {
     @Builder.Default
     String message = "success";
 
-    T data;
+    T result;
     E errors;
 }

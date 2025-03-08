@@ -30,39 +30,39 @@ public class UserController {
     @GetMapping
     ApiResponse<List<UserResponse>, Void> getUsers() {
         List<UserResponse> users = userService.getUsers();
-        return ApiResponse.<List<UserResponse>, Void>builder().data(users).build();
+        return ApiResponse.<List<UserResponse>, Void>builder().result(users).build();
     }
 
     @GetMapping("/{userId}")
     ApiResponse<UserResponse, ?> getUserById(@PathVariable("userId") String userId) {
         UserResponse userResponse = userService.getUserById(userId);
-        return ApiResponse.<UserResponse, Void>builder().data(userResponse).build();
+        return ApiResponse.<UserResponse, Void>builder().result(userResponse).build();
     }
 
     @GetMapping("/my-info")
     ApiResponse getMyInfo() {
         UserResponse userResponse = userService.getMyInfo();
-        return ApiResponse.<UserResponse, Void>builder().data(userResponse).build();
+        return ApiResponse.<UserResponse, Void>builder().result(userResponse).build();
     }
 
     @PostMapping("/registration")
     ApiResponse<UserResponse, Void> createUser(@RequestBody @Valid UserCreateRequest request) {
         UserResponse userResponse = userService.createUser(request);
         log.info("UserResponse: {}", userResponse);
-        return ApiResponse.<UserResponse, Void>builder().data(userResponse).build();
+        return ApiResponse.<UserResponse, Void>builder().result(userResponse).build();
     }
 
     @PutMapping("/{userId}")
     ApiResponse<UserResponse, Void> updateUserById(
             @PathVariable("userId") String userId, @RequestBody @Valid UserUpdateRequest request) {
         UserResponse userResponse = userService.updateUser(userId, request);
-        return ApiResponse.<UserResponse, Void>builder().data(userResponse).build();
+        return ApiResponse.<UserResponse, Void>builder().result(userResponse).build();
     }
 
     @DeleteMapping("/{userId}")
     ApiResponse<String, Void> deleteUserById(@PathVariable("userId") String userId) {
         ApiResponse<String, Void> apiResponse = new ApiResponse<>();
-        apiResponse.setData(userService.deleteUser(userId));
+        apiResponse.setResult(userService.deleteUser(userId));
         return apiResponse;
     }
 }
