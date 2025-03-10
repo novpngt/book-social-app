@@ -1,3 +1,0 @@
-jwt:
-  token-ttl: 7200
-  token-grace-period: 14400
