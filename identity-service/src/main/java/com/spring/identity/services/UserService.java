@@ -8,6 +8,7 @@ import com.spring.identity.dtos.requests.UserProfileCreationRequest;
 import com.spring.identity.mappers.ProfileMapper;
 import com.spring.identity.repositories.httpClients.UserProfileClient;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContext;
@@ -42,6 +43,7 @@ public class UserService {
     RoleRepository roleRepository;
     UserProfileClient userProfileClient;
     ProfileMapper profileMapper;
+    KafkaTemplate<String, String> kafkaTemplate;
 
     public UserResponse createUser(UserCreateRequest request) {
         User user = userMapper.toUser(request);
@@ -54,6 +56,8 @@ public class UserService {
             UserProfileCreationRequest userProfileCreationRequest = profileMapper.toUserProfileCreationRequest(request);
             userProfileCreationRequest.setUserId(user.getId());
             userProfileClient.createUserProfile(userProfileCreationRequest);
+            // publish message to kafka
+            kafkaTemplate.send("onboard-successful", "Welcome: ", user.getUsername());
         } catch (DataIntegrityViolationException e) {
             throw new AppException(ErrorCode.USER_ALREADY_EXISTS);
         }
