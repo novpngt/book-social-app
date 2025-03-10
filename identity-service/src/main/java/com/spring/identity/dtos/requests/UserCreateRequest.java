@@ -2,6 +2,7 @@ package com.spring.identity.dtos.requests;
 
 import java.time.LocalDate;
 
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 
@@ -30,6 +31,9 @@ public class UserCreateRequest {
 
     @DOBConstraint(min = 18, message = "INVALID_AGE")
     LocalDate birthDate;
+
+    @Email
+    String email;
 
     String city;
 }
